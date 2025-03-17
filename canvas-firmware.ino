@@ -114,10 +114,10 @@ void connectWifi()
 
 void baseSetup()
 {
-   pinMode(A14, INPUT);  // BUSY
-   pinMode(A15, OUTPUT); // RES
-   pinMode(A16, OUTPUT); // DC
-   pinMode(A17, OUTPUT); // CS
+   pinMode(PIN_BUSY, INPUT);
+   pinMode(PIN_RES, OUTPUT);
+   pinMode(PIN_DC, OUTPUT);
+   pinMode(PIN_CS, OUTPUT);
    // SPI
    SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
    SPI.begin();
