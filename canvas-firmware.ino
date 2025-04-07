@@ -5,11 +5,13 @@
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 #include "GDEP073E01/GDEP073E01.cpp"
+#include "Adafruit_MAX1704X.h"
 
 HTTPClient https;
 WiFiClientSecure client;
 StaticJsonDocument<200> fetchJson();
 uint8_t buffer[16384];
+Adafruit_MAX17048 maxlipo;
 
 void setup()
 {
@@ -24,7 +26,8 @@ StaticJsonDocument<200> fetchJson()
 {
    StaticJsonDocument<200> json;
    https.begin(client, ENDPOINT);
-   int httpCode = https.GET();
+   https.addHeader("Content-Type", "application/json");
+   int httpCode = https.POST(batteryStats());
    if (httpCode != HTTP_CODE_OK)
    {
       error("[HTTP] Json failed " + String(httpCode) + " " + https.errorToString(httpCode).c_str(), "http");
@@ -110,6 +113,23 @@ void connectWifi()
    {
       error("[WIFI] Failed to connect after 10 attempts.", "wifi");
    }
+}
+
+String batteryStats()
+{
+   StaticJsonDocument<200> json;
+   String serializedJson;
+   if (!maxlipo.begin())
+   {
+      Serial.println("Could not find MAX17048");
+   }
+
+   delay(50); // for getting proper battery values
+   json["batteryVoltage"] = maxlipo.cellVoltage();
+   json["batteryPercent"] = maxlipo.cellPercent();
+   serializeJson(json, serializedJson);
+
+   return serializedJson;
 }
 
 void baseSetup()
